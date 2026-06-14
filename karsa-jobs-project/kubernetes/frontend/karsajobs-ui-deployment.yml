@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: karsajobs-ui
-        image: <username-docker>/karsajobs-ui:latest
+        image: ralkrt/karsajobs-ui:latest
 
         ports:
-        - containerPort: 80
+        - containerPort: 8000

@@ -14,34 +14,37 @@ spec:
         app: mongodb
     spec:
       containers:
-      - name: mongodb
-        image: mongo
-        ports:
-        - containerPort: 27017
+        - name: mongodb
+          image: mongo
+          ports:
+            - containerPort: 27017
 
-        env:
-        - name: MONGO_INITDB_ROOT_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: mongo-secret
-              key: MONGO_INITDB_ROOT_USERNAME
+      env:
+        - name: MONGO_INITDB_ROOT_USERNAME_FILE
+          value: /etc/mongo-credentials/MONGO_ROOT_USERNAME
 
-        - name: MONGO_INITDB_ROOT_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: mongo-secret
-              key: MONGO_INITDB_ROOT_PASSWORD
+        - name: MONGO_INITDB_ROOT_PASSWORD_FILE
+          value: /etc/mongo-credentials/MONGO_ROOT_PASSWORD
 
-        volumeMounts:
-        - mountPath: /data/db
-          name: mongo-storage
+      volumeMounts:
+        - name: mongo-storage
+          mountPath: /data/db
 
-  volumeClaimTemplates:
-  - metadata:
-      name: mongo-storage
-    spec:
-      accessModes:
-        - ReadWriteOnce
-      resources:
-        requests:
-          storage: 1Gi
+        - name: mongo-config
+          mountPath: /config
+
+        - name: mongo-secret
+          mountPath: /etc/mongo-credentials
+
+      volumes:
+        - name: mongo-storage
+          persistentVolumeClaim:
+            claimName: mongo-pvc
+
+        - name: mongo-config
+          configMap:
+            name: mongo-config
+
+        - name: mongo-secret
+          secret:
+            secretName: mongo-secret
